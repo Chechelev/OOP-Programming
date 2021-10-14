@@ -1,0 +1,326 @@
+#include <iostream>
+#include<algorithm>
+#include <new>
+
+using namespace std;
+
+template <typename T>
+class Mnvo
+{
+private:
+
+    int size;            // размер массива(количество элементов в массиве, доступных пользователю).
+    int capacity;        //- "вместимость" массива, то есть размер выделенной пам€ти дл€ хранени€ элементов. ѕри увеличении размера массива если новый размер не превосходит m_capacity, то новые элементы можно создать в массиве без выделени€ дополнительной пам€ти.
+    T* m_data;            //указатель на область пам€ти, где хран€тс€ сами элементы массива.
+public:
+    Mnvo() { size = 0; capacity = 0; m_data = NULL; }
+    Mnvo(int dlina)
+    {
+        size = dlina;
+        capacity = dlina;
+        if (size != 0)
+            m_data = new T[size];
+        else
+            m_data = 0;
+
+    }
+    Mnvo(const Mnvo<T>& a)
+    {
+        this->size = a.size;
+        this->capacity = size;
+        m_data = NULL;
+        if (size != 0)
+            m_data = new T[size];
+        else
+            m_data = 0;
+        for (int i = 0; i < size; ++i)
+            m_data[i] = a.m_data[i];
+
+
+
+    }
+    //конструктор копировани€
+    ~Mnvo()
+    {
+        if (m_data)
+            delete[] m_data;
+    }
+    void resize(int dlina)
+    {
+        if (dlina > capacity)
+        {
+            int new_capacity = max(dlina, size * 2);
+
+            T* new_data = new T[new_capacity];
+            for (int i = 0; i < size; ++i)
+                new_data[i] = m_data[i];
+            delete[] m_data;
+            m_data = new_data;
+            capacity = new_capacity;
+        }
+        size = dlina;
+    }
+    void push_back(T val)
+    {
+        resize(size + 1);
+        m_data[size - 1] = val;
+    }
+    int getsize() { return size; }
+    void set(int n)
+    {
+        if (n > capacity)
+        {
+            resize(n);
+        }
+        for (int i = 0; i < n; i++)
+        {
+            cout << "vvod elementa " << i;
+            cin >> m_data[i];
+            cout << endl;
+        }
+        cout << "vvod okoncen" << endl;
+    }
+    bool check(T element)
+    {
+        bool checker = 0;
+        for (int i = 0; i < size; i++)
+        {
+            if (m_data[i] == element)
+            {
+                checker = 1;
+                break;
+            }
+        }
+        return checker;
+    }
+    void raznost(Mnvo<T> a, Mnvo<T> b) {
+        int count = 0;
+        for (int i = 0; i < b.getsize(); i++)//
+        {
+            if (!a.check(b[i]))
+            {
+                count++;
+            }
+        }
+
+        resize(count);
+        count = 0;
+        for (int i = 0; i < b.getsize(); i++)
+        {
+            //    bool proverka;
+            if (!a.check(b[i]))
+            {
+                m_data[count] = b[i];
+                count++;
+            }
+        }
+
+    };
+    //строит множество из разности
+    void peresec(Mnvo<T> a, Mnvo<T> b) {
+        int count = 0;
+        for (int i = 0; i < b.getsize(); i++)//
+        {
+            if (a.check(b[i]))
+            {
+                count++;
+            }
+        }
+
+        resize(count);
+        count = 0;
+        for (int i = 0; i < b.getsize(); i++)
+        {
+            //    bool proverka;
+            if (a.check(b[i]))
+            {
+                m_data[count] = b[i];
+                count++;
+            }
+        }
+
+    };
+    //множество пересечени€
+    void obedin(Mnvo<T> a, Mnvo<T> b) {
+        int count = 0;
+        resize(a.getsize());
+        for (int i = 0; i < a.getsize(); i++)
+        {
+            m_data[i] = a[i];
+        }
+        for (int i = 0; i < b.getsize(); i++)//
+        {
+            if (!a.check(b[i]))
+            {
+                push_back(b[i]);
+            }
+        }
+        count = 0;
+
+
+    };
+    //строит множество объединени€
+    bool checkob(T element, Mnvo<T> a)
+    {
+        bool checker = 0;
+        for (int i = 0; i < size; i++)
+        {
+            if (m_data[i] == element)
+            {
+                checker = 1;
+                break;
+            }
+        }
+        if (!checker)
+        {
+            checker = a.check(element);
+        }
+        return checker;
+    }
+    //работает осталось мб переделать в отдельную функцию
+    bool checkper(T element, Mnvo<T> a)
+    {
+        bool checker1 = 0;
+        bool checker2 = 0;
+        for (int i = 0; i < size; i++)
+        {
+            if (m_data[i] == element)
+            {
+                checker1 = 1;
+                break;
+            }
+        }
+        checker2 = a.check(element);
+        if (checker1 == 1 && checker2 == 1)
+        {
+            return 1;
+        }
+        else return 0;
+    }
+    //работает осталось мб переделать в отдельную функцию
+    bool checkrazn(T element, Mnvo<T> a)
+    {
+
+        bool checker1 = 0;
+        bool checker2 = 0;
+        for (int i = 0; i < size; i++)
+        {
+            if (m_data[i] == element)
+            {
+                checker1 = 1;
+                break;
+            }
+        }
+        checker2 = a.check(element);
+        if ((checker1 == 1 && checker2 == 0) || (checker1 == 0 && checker2 == 1))
+        {
+            return 1;
+        }
+        else return 0;
+    }
+    // идейно не праивльно но работает правильно
+    T& operator[] (int i)
+    {
+        return m_data[i];
+    }
+
+};
+
+int showmenu()
+{
+    system("cls");
+    cout << "sozdat mnvo tipa int - 1" << endl;
+    cout << "sozdat mnvo tipa char - 2" << endl;
+    cout << "sozdat mnvo tipa string - 3" << endl;
+    cout << "vvedi vibor" << endl;
+
+    int choise;
+    cin >> choise;
+    return choise;
+}
+template<typename T>
+ostream& operator << (ostream& out, Mnvo<T> a)
+{
+    for (int i = 0; i < a.getsize(); ++i)
+        out << a[i] << " ";
+    return out;
+}
+int main()
+{
+
+    /*/int cislo1;
+    int cislo2;
+    cout << "vvedi dlinu mn-va" << endl;
+    cin >> cislo1;
+    cin >> cislo2;*/
+    cout << "vvedi cislo massivov";
+    int kolicestvo;
+    cin >> kolicestvo;
+    Mnvo<int>* mnvaint = new Mnvo<int>[];// вот тут еще думаю как придумать без изначального количества
+    Mnvo<char>* mnvachar = new Mnvo<char>[];// вот тут еще думаю как придумать без изначального количества
+    Mnvo<string>* mnvastring = new Mnvo<string>[];// вот тут еще думаю как придумать без изначального количества
+    int kolelem;
+    int counterint=0;
+    int counterchar=0;
+    int counterstring=0;
+    for (int i = 0; i < kolicestvo; i++)
+    {
+        switch (showmenu()) {
+        case 1:
+            cout << "vvedi kolvo elementov tipa int vo mn-ve" << endl;
+            cin >> kolelem;
+            counterint++;
+            mnvaint[counterint].set(kolelem);
+            break;
+        case 2: cout << "vvedi kolvo elementov tipa char vo mn-ve" << endl;
+            cin >> kolelem;
+            counterchar++;
+            mnvachar[counterint].set(kolelem);
+            break;
+        case 3: cout << "vvedi kolvo elementov tipa string vo mn-ve" << endl;
+            cin >> kolelem;
+            counterstring++;
+            mnvastring[counterint].set(kolelem);
+        default: break;
+        }
+    }
+    //<char> m1(cislo1);
+    //Mnvo<char> m2(cislo2);
+    /*Mnvo<char> m3;
+    m3.raznost(m1, m2);
+    cout << endl;
+    for (int i = 0; i < m3.getsize(); i++)
+    {
+        cout << m3[i] << endl;
+    }*/
+
+
+    /*char b; cin >> b;
+    bool proverka;
+    proverka=m1.checkrazn(b,m2);
+    cout << proverka;*/
+
+    //m1.~Mnvo();
+    //m2.~Mnvo();
+    //m3.~Mnvo();
+
+
+    system("pause");
+    return 0;
+}
+
+//choise = showmenu();
+
+/*switch (choise) {
+case 1:
+cout << "vvedi kolvo elementov tipa int vo mn-ve" << endl;
+cin >> dlina;
+Mnoint
+break;
+case 2: input_from_file(table, count_product);
+break;
+case 3: input_1(table, count_product);
+
+default: break;
+}
+a.set_mn(); */
