@@ -1,0 +1,96 @@
+//Построить класс для работы с односвязным списком.Создать два списка : List1 и List2.
+//Проверить,содержатся ли элементы списка List1 в списке List2 в указанном списком List1 порядке
+
+#include<iostream>
+#include<Windows.h>
+
+using namespace std;
+
+struct element {
+    int id;//pole dannih
+    struct element* sled;//yakazatel na sled el
+};
+
+class List {
+    element* Head;
+public:
+    List() { Head = NULL; }//конструктор
+    ~List();
+    void Add(int id);
+    void Show() const;
+    bool FindClone(const List& list) const;
+
+};
+
+List::~List() {
+    while (Head != NULL)
+    {
+        element* temp = Head->sled;
+        delete Head; 
+        Head = temp; 
+    }
+}
+
+void List::Add(int id) {
+    element* temp = new element;
+    temp->id = id;       
+    temp->sled = Head;   
+    Head = temp;         
+}
+
+void List::Show() const      
+{
+    element* temp = Head;
+    while (temp != NULL)
+    {
+        cout << temp->id << " ";
+        temp = temp->sled;     
+    }
+}
+
+bool List::FindClone(const List& list) const {
+    element* el = Head;
+    element* elarg = list.Head;
+
+    while (el && elarg) {
+        if (el->id == elarg->id) {
+            elarg = elarg->sled;
+        }
+        el = el->sled;
+    }
+    return elarg == NULL;
+}
+
+int main() {
+    SetConsoleOutputCP(1251);
+    SetConsoleCP(1251);
+    int a = 0, i = 0, j = 0;
+    int N, N1;//chislo el spiska
+    int el, el1;//elements vvodimie v spisok
+    List lst, list;
+    cout << "Введите длину 1-го списка: ";
+    cin >> N;
+    for (int i = 0; i < N; i++) {
+        cout << i + 1 << " = ";
+        cin >> el;
+        lst.Add(el);
+    }
+    cout << "Введите длину 2-го списка: ";
+    cin >> N1;
+    for (int i = 0; i < N1; i++) {
+        cout << i + 1 << " = ";
+        cin >> el1;
+        list.Add(el1);
+    }
+    cout << "------------\n";
+    lst.Show();
+    cout <<"\n";
+    list.Show();
+    cout << "\n------------\n";
+
+
+    cout << "Список 2 " << (list.FindClone(lst) ? "" : "НЕ ") << "содержится в списке 1" << endl;
+
+    system("pause");
+
+}
