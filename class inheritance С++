@@ -1,0 +1,90 @@
+/*
+Создать базовый класс «Домашнее животное» и производные классы «Собака», «Кошка», «Попугай» и др.
+С помощью конструктора установить имя каждого животного и его характеристики.
+*/
+#include<iostream>
+#include<Windows.h>
+#include<string>
+
+using namespace std;
+
+class Pet
+{
+protected:
+    string name;
+    int age;
+public:
+     Pet(string name, int age)
+        : name(name), age(age)
+    {
+    }
+
+    virtual void Say() = 0;
+};
+
+class Dog : public Pet
+{
+public:
+    Dog(string name, int age) : Pet(name, age)
+    {
+
+    }
+    void Say() {
+        cout << name << " says Woof-Woof " <<"and he is " << age << " years old!"<< '\n';
+    };
+    
+};
+
+class Cat : public Pet
+{
+public:
+    Cat(string name, int age) : Pet(name, age)
+    {
+
+    }
+    void Say() {
+        cout << name << " says Meow-Meow " << "and she is " << age << " years old!" << '\n';
+    };
+    
+};
+
+class Parrot : public Pet
+{
+public:
+    Parrot(string name, int age) : Pet(name, age) 
+    {
+    }
+    void Say() {
+        cout << name << " says Chik-Chirik " << "and he is " << age << " years old!" << '\n';
+    };
+    
+};
+
+
+int main()
+{
+    // Создаем нового Баскетболиста
+    //new Dog = "dog";
+    // Присваиваем ему имя (мы можем делать это напрямую, так как m_name является public)
+    //Dog.name = "jack";
+    // Выводим имя Баскетболиста
+   // cout << jack.getName() << '\n'; // используем метод getName(), который мы унаследовали от класса Human
+    /*
+    Dog dog;
+    dog.name = "Jack ";
+    dog.age = 10;
+    dog.Say();
+    cout << "and he is " << dog.getAge() << " years old";
+    */
+
+    Pet* pets[3] = {
+       new Dog("Jack", 10),
+       new Cat("Ledi", 8),
+       new Parrot("Sir", 7),
+    };
+
+    for (int i = 0; i < 3; ++i)
+        pets[i]->Say();
+
+    return 0;
+}
