@@ -1,0 +1,399 @@
+#include <iostream>
+#include <stdlib.h>     
+#include <time.h> 
+
+using namespace std;
+
+class Matrix
+{
+	int** myMatrix;
+	int rows;
+	int columns;
+
+	int** minorMat;
+	int mRows;
+	int mColumns;
+	int minorRow = -1;
+	int minorColumn = -1;
+public:
+	Matrix();
+	Matrix(int i, int j);
+	Matrix(const Matrix& ob);
+	~Matrix();
+
+	void setRandValues();
+	void setMinorSize(int rows, int columns);
+	void setMinor(int k, int l);
+	void matrixMinor();
+	void minorOutput();
+	void minorAdd(Matrix&);
+	void minorDiff(Matrix&);
+	void minorMultiplication(Matrix&);
+	void matrixOutput();
+	Matrix operator+(const Matrix ob);
+	Matrix& operator-(const Matrix&);
+	Matrix& operator*(const Matrix&);
+	Matrix& operator=(const Matrix&);
+};
+
+Matrix::Matrix()
+{
+	cout << "Rows = 3; Columns = 3\n";
+
+	rows = 3; columns = 3;
+
+	myMatrix = new int* [3];
+	for (int h = 0; h < rows; h++)
+	{
+		myMatrix[h] = new int[columns];
+	}
+}
+
+Matrix::Matrix(int i, int j)
+{
+	rows = i; columns = j;
+
+	myMatrix = new int* [rows];
+	for (int h = 0; h < rows; h++)
+	{
+		myMatrix[h] = new int[columns];
+	}
+}
+
+Matrix::Matrix(const Matrix& other) : rows(other.rows), columns(other.columns), myMatrix(other.myMatrix), minorMat(other.minorMat), mRows(other.mRows), mColumns(other.mColumns), minorRow(other.minorRow), minorColumn(other.minorColumn) { }
+
+Matrix::~Matrix()
+{
+	for (int i = 0; i < this->rows; i++)
+		delete[] this->myMatrix[i];
+
+	delete[] this->myMatrix;
+}
+
+void Matrix::setRandValues()
+{
+	srand(time(0));
+
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < columns; j++) {
+			myMatrix[i][j] = rand() % 10;
+		}
+	}
+}
+
+void Matrix::setMinorSize(int rows, int columns)
+{
+	mRows = rows - 1; mColumns = columns - 1;
+
+	minorMat = new int* [mRows];
+	for (int h = 0; h < mRows; h++)
+	{
+		minorMat[h] = new int[mColumns];
+	}
+}
+
+void Matrix::setMinor(int k, int l)
+{
+	if (k >= rows || l >= columns)
+	{
+		cout << "Wrong Data! Setupted 0 0.\n";
+		this->minorRow = 0;
+		this->minorColumn = 0;
+	}
+	else
+	{
+		this->minorRow = k;
+		this->minorColumn = l;
+	}
+
+	this->setMinorSize(rows, columns);
+
+	int r = 0, c = 0;
+	for (int i = 0; i < rows; i++, r++) {
+		if (i == this->minorRow)
+		{
+			if (i + 1 < rows)
+				i++;
+			else
+				break;
+		}
+
+		for (int j = 0, c = 0; j < columns; j++, c++) {
+			if (j == this->minorColumn)
+			{
+				if (j + 1 < columns)
+					j++;
+				else
+					break;
+			}
+
+			this->minorMat[r][c] = this->myMatrix[i][j];
+		}
+	}
+}
+
+void Matrix::matrixMinor()
+{
+	if (this->minorColumn == -1 && this->minorRow == -1)
+	{
+		cout << "You didn't setup the minor! Do you want to setup?";
+		cout << "\n1 - yes, 2 - no: ";
+
+		int k;
+		cin >> k;
+
+		switch (k)
+		{
+		case 1:
+			int n, m;
+			cout << "Enter the minor of Matrix: ";
+			cin >> n >> m;
+			this->setMinor(n, m);
+			break;
+
+		case 2:
+			return;
+		}
+	}
+
+	this->minorOutput();
+}
+
+void Matrix::minorOutput()
+{
+	for (int i = 0; i < mRows; i++) {
+		for (int j = 0; j < mColumns; j++) {
+			cout << this->minorMat[i][j] << " ";
+		}
+
+		cout << endl;
+	}
+
+	cout << endl;
+}
+
+void Matrix::minorAdd(Matrix& minor1)
+{
+	int k, l;
+
+	k = (this->mRows > minor1.mRows) ? minor1.mRows : this->mRows;
+	l = (this->mColumns > minor1.mColumns) ? minor1.mColumns : this->mColumns;
+
+	for (int i = 0; i < k; i++) {
+		for (int j = 0; j < l; j++) {
+			this->minorMat[i][j] += minor1.minorMat[i][j];
+		}
+	}
+
+	this->minorOutput();
+}
+
+void Matrix::minorDiff(Matrix& minor1)
+{
+	int k, l;
+
+	k = (this->mRows > minor1.mRows) ? minor1.mRows : this->mRows;
+	l = (this->mColumns > minor1.mColumns) ? minor1.mColumns : this->mColumns;
+
+	for (int i = 0; i < k; i++) {
+		for (int j = 0; j < l; j++) {
+			this->minorMat[i][j] -= minor1.minorMat[i][j];
+		}
+	}
+
+	this->minorOutput();
+}
+
+void Matrix::minorMultiplication(Matrix& minor1)
+{
+	int k, l;
+
+	k = (this->mRows > minor1.mRows) ? minor1.mRows : this->mRows;
+	l = (this->mColumns > minor1.mColumns) ? minor1.mColumns : this->mColumns;
+
+	for (int i = 0; i < k; i++) {
+		for (int j = 0; j < l; j++) {
+			this->minorMat[i][j] *= minor1.minorMat[i][j];
+		}
+	}
+
+	this->minorOutput();
+}
+
+void Matrix::matrixOutput()
+{
+	for (int i = 0; i < this->rows; i++) {
+		for (int j = 0; j < this->columns; j++) {
+			cout << this->myMatrix[i][j] << " ";
+		}
+		cout << endl;
+	}
+
+	cout << endl;
+}
+
+Matrix Matrix::operator+(const Matrix minor1)
+{
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < columns; j++) {
+			this->myMatrix[i][j] += minor1.myMatrix[i][j];
+		}
+	}
+
+	this->matrixOutput();
+
+	return *this;
+}
+
+Matrix& Matrix::operator-(const Matrix& minor1)
+{
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < columns; j++) {
+			this->myMatrix[i][j] -= minor1.myMatrix[i][j];
+		}
+	}
+
+	this->matrixOutput();
+
+	return *this;
+}
+
+Matrix& Matrix::operator*(const Matrix& minor1)
+{
+	if (this->columns != minor1.rows)
+	{
+		cout << "number of columns(1 matrix) < number of rows(2 matrix)" << endl;
+		return *this;
+	}
+
+	int** c = new int* [this->rows];
+	for (int i = 0; i < this->rows; i++)
+	{
+		c[i] = new int[minor1.columns];
+		for (int j = 0; j < minor1.columns; j++)
+		{
+			c[i][j] = 0;
+			for (int k = 0; k < this->columns; k++)
+				c[i][j] += this->myMatrix[i][k] * minor1.myMatrix[k][j];
+		}
+	}
+
+	this->myMatrix = c;
+	this->columns = minor1.columns;
+
+	this->matrixOutput();
+
+	return *this;
+}
+
+Matrix& Matrix::operator=(const Matrix& minor1)
+{
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < columns; j++) {
+			this->myMatrix[i][j] = minor1.myMatrix[i][j];
+		}
+	}
+
+	return *this;
+}
+
+int main()
+{
+	int n, m;
+
+	cout << "Enter the size of matrix NxM: ";
+	cin >> n >> m;
+
+	if (n < 1 || m < 1)
+	{
+		cout << "Wrong data! Setupted default settings.\n";
+		n = 3;
+		m = 3;
+	}
+
+	Matrix newMatrix(n, m);
+
+	newMatrix.setRandValues();
+	newMatrix.matrixOutput();
+
+	cout << "Enter the minor of Matrix: ";
+	cin >> n >> m;
+	newMatrix.setMinor(n, m);
+	newMatrix.matrixMinor();
+
+	Matrix mat;
+	mat.setRandValues();
+	mat.matrixOutput();
+
+	cout << "Enter the minor of Matrix: ";
+	cin >> n >> m;
+	mat.setMinor(n, m);
+	mat.matrixMinor();
+
+	cout << "What do you want to make with the Minor:"
+		"\n1 - Add"
+		"\n2 - Subtract"
+		"\n3 - Multiplicate"
+		"\nYour choice is: ";
+	cin >> n;
+
+	cout << endl;
+
+	switch (n)
+	{
+	case 1:
+		newMatrix.matrixOutput();
+		mat.minorAdd(newMatrix);
+		newMatrix.matrixOutput();
+		break;
+
+	case 2:
+		mat.minorDiff(newMatrix);
+		break;
+
+	case 3:
+		mat.minorMultiplication(newMatrix);
+		break;
+
+	default:
+		cout << "Wrong data!\n";
+	}
+
+	cout << "What do you want to make with the Matrix:"
+		"\n1 - Add"
+		"\n2 - Subtract"
+		"\n3 - Multiplicate"
+		"\n4 - Assign (2nd matrix must be >= than 1st, else enter 5)"
+		"\nYour choice is: ";
+	cin >> n;
+
+	cout << endl;
+
+	switch (n)
+	{
+	case 1:
+		mat = mat + newMatrix;
+		break;
+
+	case 2:
+		mat = mat - newMatrix;
+		break;
+
+	case 3:
+		mat = mat * newMatrix;
+		break;
+
+	case 4:
+		mat = newMatrix;
+		mat.matrixOutput();
+		break;
+
+	case 5:
+		newMatrix = mat;
+		newMatrix.matrixOutput();
+		break;
+
+	default:
+		cout << "Wrong data!\n";
+	}
+}
