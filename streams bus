@@ -1,0 +1,148 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+struct element {
+    int id;
+    struct element* sled;
+    element(int _val) : id(_val), sled(nullptr) {}
+};
+
+class List {
+    element* last;
+    element* first;
+public:
+    List() : first(nullptr), last(nullptr) {}
+    ~List();
+    void read();
+    void save();
+    void add(int);
+    void print();
+    bool contains(const List& list) const;
+};
+
+
+List::~List() {
+    while (last != nullptr) {
+        element* temp = last->sled;
+        delete last;
+        last = temp;
+    }
+}
+
+void List::add(int id) {
+    auto* temp = new element(id);
+    if (first == nullptr) {
+        first = temp;
+        last = temp;
+        return;
+    }
+    last->sled = temp;
+    last = temp;
+}
+
+bool List::contains(const List& list) const {
+    element* el = first;
+    element* elarg = list.first;
+    while (el && elarg) {
+        if (el->id == elarg->id) {
+            elarg = elarg->sled;
+        }
+        el = el->sled;
+    }
+    return elarg == nullptr;
+}
+
+void List::read() {
+    std::ifstream in(R"(E:\Visual Studio\проекты\ЛАБЫ ООП\SEMESTER 3\Лаб-6\Лаб-6\input.txt)");
+    if (!in) {
+        std::cerr << "Cannot open the File : " << std::endl;
+    }
+    string line;
+    while (std::getline(in, line, ' '))
+    {
+        auto* temp = new element(stoi(line));
+        if (first == nullptr) {
+            first = temp;
+            last = temp;
+        }
+        last->sled = temp;
+        last = temp;
+    }
+    in.close();
+}
+
+void List::save() {
+    ofstream fout;
+    fout.open(R"(E:\Visual Studio\проекты\ЛАБЫ ООП\SEMESTER 3\Лаб-6\Лаб-6\output.txt)");
+    if (!fout.is_open()) {
+        cout << "Error with file open" << endl;
+    }
+    else {
+        element* temp = first;
+        while (temp) {
+            fout << temp->id << " ";
+            temp = temp->sled;
+        }
+        fout.close();
+    }
+}
+
+void List::print() {
+    element* p = first;
+    while (p) {
+        cout << p->id << " ";
+        p = p->sled;
+    }
+    cout << endl;
+}
+
+int main() {
+    setlocale(LC_ALL, "rus");
+    int n1, n2;
+    int el1, el2;
+    try {
+        List list1, list2, list3;
+        cout << "Введите длину List1:";
+        cin >> n1;
+        for (int i = 0; i < n1; i++) {
+            cout << i + 1 << ".x = ";
+            cin >> el1;
+            list1.add(el1);
+        }
+        list1.print();
+        cout << "Введите длину List2:";
+        cin >> n2;
+        for (int i = 0; i < n2; i++) {
+            cout << i + 1 << ".x = ";
+            cin >> el2;
+            list2.add(el2);
+        }
+        list2.print();
+
+        list3.read();
+        list3.save();
+        list3.print();
+
+        cout << "List1 ";
+        if (list2.contains(list1)) {
+            cout << "содержится в List2" << endl;
+        }
+        else
+            cout << "не содержится в List2" << endl;
+
+        cout << "List1 ";
+        if (list3.contains(list1)) {
+            cout << "содержится в List3" << endl;
+        }
+        else
+            cout << "не содержится в List3" << endl;
+    }
+    catch (exception& ex) {
+        cout << "Что-то пошло не так: " << ex.what() << "!\n";
+    }
+
+    system("pause");
+}
