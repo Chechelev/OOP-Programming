@@ -1,0 +1,163 @@
+#include <conio.h>
+#include <string.h>
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+class FileExc { //исключение
+    string c;
+public:
+    FileExc(string c) : c(c) {}
+    void show()
+    {
+        cout << "Error! File " << c << " can not open!\n";
+    }
+    ~FileExc() {}
+};
+
+struct date // дата начала эксплуатации
+{
+    int year;
+};
+
+//=======     class Bus   =================
+
+class Bus {
+    char name[30];
+    int num;
+    int route;
+    char brand[30];
+public:
+    Bus();
+    date t;
+    void setFile(ifstream& fin);
+    int run;
+    int  getroute();
+    int  getyear();
+    int  getrange();
+    void show();
+};
+
+
+Bus::Bus()
+{
+    cout << endl;
+    cout << "Input name: "; cin >> name;
+    cout << "Input bus number: "; cin >> num;
+    cout << "Input route: "; cin >> route;
+    cout << "Input brand: "; cin >> brand;
+    cout << "Input start of expluatation: "; cin >> t.year;
+    cout << "Input run of a bus: "; cin >> run;
+}
+
+
+void Bus::setFile(ifstream& fin)//  поток ввода
+{
+    if (!fin)
+        throw FileExc("E:\\Visual Studio\\проекты\\ЛАБЫ ООП\\SEMESTER 3\\lababa6\\ConsoleApplication1\\ConsoleApplication1\\input.txt");
+    fin >> name;
+    fin >> brand;
+    fin >> t.year;
+    fin >> num;
+    fin >> route;
+
+}
+
+void Bus::show()
+{
+    ofstream fout;
+    fout.open("E:\\Visual Studio\\проекты\\ЛАБЫ ООП\\SEMESTER 3\\lababa6\\ConsoleApplication1\\ConsoleApplication1\\output.txt", ios::app);
+    if (!fout)
+        throw FileExc("E:\\Visual Studio\\проекты\\ЛАБЫ ООП\\SEMESTER 3\\lababa6\\ConsoleApplication1\\ConsoleApplication1\\output.txt");
+    fout << "Driver name: " << name << endl;
+    fout << "Bus number is: " << num << endl;
+    fout << "Bus route is: " << route << endl;
+    fout << "Bus brand is: " << brand << endl;
+    fout << "Start of expluatation: " << t.year << endl;
+    fout << "Range: " << run << endl;
+    fout.close();
+
+}
+
+
+int Bus::getroute() { return route; }
+int Bus::getyear() { return t.year; }
+int Bus::getrange() { return run; }
+
+void spisroute(Bus spis[], int n)//список автобусов для заданного номера маршрута;
+{
+    int r;
+    cout << endl;
+   cout << "Input route number: ";  cin >> r;
+    cout << "==================" << endl;
+    cout << endl;
+    for (int i = 0; i < n; i++) {
+        if (spis[i].getroute() == r) {
+            spis[i].show();
+        }
+    }
+    //cout << endl;
+}
+
+void oldBuses(Bus spis[], int n) //список автобусов, которые эксплуатируются больше 10 лет;
+{
+    cout << endl;
+    cout << "list of old busses" << endl;
+    cout << "==================" << endl;
+    cout << endl;
+    for (int i = 0; i < n; i++) {
+        if (spis[i].t.year + 10 < 2021) {
+            spis[i].show();
+        }
+       // cout << endl;
+    }
+}
+
+void aliveBuses(Bus spis[], int n) //список автобусов, которые эксплуатируются больше 10 лет;
+{
+    cout << endl;
+   cout << "Busses with the range of 10000+ km" << endl;
+    cout << "==================================" << endl;
+    cout << endl;
+    for (int i = 0; i < n; i++) {
+        if (spis[i].run > 10000) {
+            spis[i].show();
+        }
+        ///cout << endl;
+    }
+}
+
+//=========    main   ================
+int main() {
+    try {
+        Bus* spis;
+        int n;
+       cout << "Input a number of busses: ";
+        cin >> n;
+        spis = new Bus[n];
+        if (!spis)
+            throw "error";
+        ifstream fin("E:\\Visual Studio\\проекты\\ЛАБЫ ООП\\SEMESTER 3\\lababa6\\ConsoleApplication1\\ConsoleApplication1\\input.txt");
+        for (int i = 0; i < n; i++)
+            spis[i].setFile(fin);
+        for (int i = 0; i < n; i++)
+            spis[i].show();
+        fin.close();
+        spisroute(spis, n);
+        oldBuses(spis, n);
+        aliveBuses(spis, n);
+        delete[] spis;
+        cout << "press any key!";
+    }
+    catch (FileExc& ex)
+    {
+        ex.show();
+        return 1;
+    }
+    catch (int a)
+    {
+        cout << "Array of files not created!\n";
+        return 2;
+    }
+    return 0;
+}
