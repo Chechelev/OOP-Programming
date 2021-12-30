@@ -1,0 +1,183 @@
+#include <conio.h>
+#include <string>
+#include <iostream>
+#include <fstream>
+using namespace std;
+/*
+Фамилия и инициалы водителя, Номер автобуса, Номер маршрута, Марка, Год начала эксплуатации, Пробег.
+Создать массив объектов. Вывести:
+а) список автобусов для заданного номера маршрута;
+б) список автобусов, которые эксплуатируются больше 10 лет;
+в) список автобусов, пробег у которых больше 10 000 км.
+*/
+
+class FileExc { //исключение
+    string c;
+public:
+    FileExc(string c) : c(c) {}
+    void show()
+    {
+        cout << "Error! File " << c << " can not open!\n";
+    }
+    ~FileExc() {}
+};
+
+struct date // дата начала эксплуатации
+{
+    int year;
+};
+
+//=======     class Bus   =================
+
+class Bus {
+    char name[30];
+    int num;
+    int route;
+    char brand[30];
+
+public:
+    Bus();
+    date t;
+    void setFile(ifstream& fin, Bus spis[], int n);
+    int run;
+    int  getroute();
+    int  getyear();
+    int  getrange();
+    void show();
+};
+
+
+Bus::Bus()
+{
+}
+
+
+void Bus::setFile(ifstream& fin, Bus spis[], int n)//  поток ввода
+{
+
+    string sss;
+    if (!fin)
+        throw FileExc("E:\\Visual Studio\\проекты\\ЛАБЫ ООП\\SEMESTER 3\\lababa6\\ConsoleApplication1\\ConsoleApplication1\\input.txt");
+
+    
+        getline(fin, sss);
+        for (int i = 0; i < sss.length(); i++) {
+            name[i] = sss[i];
+        }
+        name[sss.length()] = '\0';
+
+        getline(fin, sss);
+        num = 0;
+        for (int i = 0; i < sss.length(); i++) {
+            num = num * 10 + sss[i] - 0x30;
+        }
+
+        getline(fin, sss);
+        route = 0;
+        for (int i = 0; i < sss.length(); i++) {
+            route = route * 10 + sss[i] - 0x30;
+        }
+
+        getline(fin, sss);
+        for (int i = 0; i < sss.length(); i++) {
+            brand[i] = sss[i];
+        }
+        brand[sss.length()] = '\0';
+
+        getline(fin, sss);
+        t.year = 0;
+        for (int i = 0; i < sss.length(); i++) {
+            t.year = t.year * 10 + sss[i] - 0x30;
+        }
+
+        getline(fin, sss);
+        run = 0;
+        for (int i = 0; i < sss.length(); i++) {
+            run = run * 10 + sss[i] - 0x30;
+        }
+        getline(fin, sss);
+  
+
+    
+}
+
+void Bus::show()
+{
+    ofstream fout;
+    fout.open("E:\\Visual Studio\\проекты\\ЛАБЫ ООП\\SEMESTER 3\\lababa6\\ConsoleApplication1\\ConsoleApplication1\\output.txt", ios:: app);
+    if (!fout)
+        throw FileExc("E:\\Visual Studio\\проекты\\ЛАБЫ ООП\\SEMESTER 3\\lababa6\\ConsoleApplication1\\ConsoleApplication1\\output.txt");
+    fout << "Driver name: " << name << endl;
+    fout << "Bus number is: " << num << endl;
+    fout << "Bus route is: " << route << endl;
+    fout << "Bus brand is: " << brand << endl;
+    fout << "Start of expluatation: " << t.year << endl;
+    fout << "Range: " << run << endl << endl << endl;
+    fout.close();
+
+}
+
+
+
+int Bus::getyear() { return t.year; }
+int Bus::getrange() { return run; }
+
+void oldBuses(Bus spis[], int n) //список автобусов, которые эксплуатируются больше 10 лет;
+{
+    cout << endl;
+    cout << "list of old busses" << endl;
+    cout << "==================" << endl;
+    cout << endl;
+    for (int i = 0; i < n; i++) {
+        if (spis[i].t.year + 10 < 2021) {
+            spis[i].show();
+        }
+       // cout << endl;
+    }
+}
+
+void aliveBuses(Bus spis[], int n) //список автобусов, которых больше 10000км;
+{
+    cout << endl;
+   cout << "Busses with the range of 10000+ km" << endl;
+    cout << "==================================" << endl;
+    cout << endl;
+    for (int i = 0; i < n; i++) {
+        if (spis[i].run > 10000) {
+            spis[i].show();
+        }
+        ///cout << endl;
+    }
+}
+
+//=========    main   ================
+int main() {
+    try {
+        Bus* spis;
+        int n;
+       cout << "Input a number of busses: ";
+        cin >> n;
+        spis = new Bus[n];
+        if (!spis)
+            throw "error";
+        ifstream fin("E:\\Visual Studio\\проекты\\ЛАБЫ ООП\\SEMESTER 3\\lababa6\\ConsoleApplication1\\ConsoleApplication1\\input.txt");
+        for (int i = 0; i < n; i++)
+            spis[i].setFile(fin, spis, n);
+        fin.close();
+        oldBuses(spis, n);
+        aliveBuses(spis, n);
+        delete[] spis;
+        cout << "press any key!";
+    }
+    catch (FileExc& ex)
+    {
+        ex.show();
+        return 1;
+    }
+    catch (int a)
+    {
+        cout << "Array of files not created!\n";
+        return 2;
+    }
+    return 0;
+}
